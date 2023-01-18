@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ====================================================================== 
+     09/2021
+
+     servers
+                   
+     Emmanuel Amblard                                                                
+     ====================================================================== -->
+
+<project name="servers" >
+
+	
+    <!-- - - - - - - - - - - - - - - - - - 
+          Propriété globales au projet              
+         - - - - - - - - - - - - - - - - - -->
+
+	<!-- Chargement des fichiers properties -->
+	<property file="servers.properties" />	
+	
+	<!-- Dossiers data -->
+	<property name="fullpath.dir.data.postgresql" location="${fullpath.dir.data}/${name.dir.postgresql}" />
+	<property name="fullpath.dir.data.wildfly" location="${fullpath.dir.data}/${name.dir.wildfly}" />
+	
+	<!-- Extension des scripts -->
+	<condition property="ext.script" value="bat" else="sh">
+		<os family="windows"/>
+	</condition>
+	
+	
+    <!-- ================================= 
+          target: postgresql-init-db
+         ================================= -->
+    <target name="postgresql-init-db" description="" >
+		<mkdir dir="${fullpath.dir.data.postgresql}" />
+		<exec executable="${fullpath.home.postgresql}/bin/initdb" >
+			<arg value="--pgdata=${fullpath.dir.data.postgresql}"/>
+			<arg value="--username=postgres"/>
+			<arg value="--pwfile=${basedir}/password-postgresql.txt"/>
+			<arg value="--auth=password"/>
+		</exec>
+	</target>
+	
+	
+    <!-- ================================= 
+          target: postgresql-start
+         ================================= -->
+    <target name="postgresql-start" description="" >
+		<exec executable="${fullpath.home.postgresql}/bin/pg_ctl" >
+			<arg value="--pgdata=${fullpath.dir.data.postgresql}"/>
+			<arg value="start"/>
+		</exec>
+	</target>
+	
+	
+    <!-- ================================= 
+          target: postgresql-stop
+         ================================= -->
+    <target name="postgresql-stop" description="" >
+		<exec executable="${fullpath.home.postgresql}/bin/pg_ctl" >
+			<arg value="--pgdata=${fullpath.dir.data.postgresql}"/>
+			<arg value="stop"/>
+		</exec>
+	</target>
+	
+	
+    <!-- ================================= 
+          target: wildfly-init-wd
+         ================================= -->
+    <target name="wildfly-init-wd" description="" >
+		<mkdir dir="${fullpath.dir.data.wildfly}" />
+		<copy todir="${fullpath.dir.data.wildfly}" >
+			<fileset dir="templates/${name.dir.wildfly}" />
+		</copy>
+	</target>
+	
+	
+    <!-- ================================= 
+          target: wildfly-start
+         ================================= -->
+    <target name="wildfly-start" description="" >
+		<exec executable="${fullpath.home.wildfly}/bin/standalone.${ext.script}" timeout="10000" >
+			<arg value="-Djboss.server.base.dir=${fullpath.dir.data.wildfly}"/>
+			<env key="NOPAUSE" value="ON" />
+		</exec>
+	</target>
+	
+	
+    <!-- ================================= 
+          target: wildfly-stop
+         ================================= -->
+    <target name="wildfly-stop" description="" >
+		<exec executable="${fullpath.home.wildfly}/bin/jboss-cli.${ext.script}" >
+			<arg value="--controller=localhost:${widnfly.port.mgmt-http}"/>
+			<arg value="--connect"/>
+			<arg value="--commands=:shutdown"/>
+			<env key="NOPAUSE" value="ON" />
+		</exec>
+	</target>
+	
+	
+</project>

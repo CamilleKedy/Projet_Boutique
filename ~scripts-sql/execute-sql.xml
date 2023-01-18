@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ====================================================================== 
+     09/2021                                                       
+
+     sql-maboutique
+                   
+     ====================================================================== -->
+<project name="sql-maboutique" default="init-db" >
+
+	
+    <!-- ================================= 
+          Paramètres généraux              
+         ================================= -->
+
+	<property file="./jdbc.properties" />
+	
+	<property name="dir.sql" location="." />
+	<property name="dir.driver" location="./lib" />
+	
+	<path id="classpath.jdbc.driver" >
+		<fileset dir="${dir.driver}" />
+	</path>
+
+
+    <!-- ================================= 
+          target: init-db              
+         ================================= -->
+    <target name="init-db" description="Initialise la base de données">
+    	<execute-sql sqlfile="${dir.sql}/maboutique.sql" 
+    		user="${jdbc.admin.user}" password="${jdbc.admin.password}"
+	    />
+    </target>
+	
+	
+	<!-- = = = = = = = = = = = = = = = = =
+          macrodef: execute-sql          
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="execute-sql">
+        <attribute  name="sqlfile"  />
+        <attribute  name="delimiter" default=";"  />
+        <attribute  name="user" default="${jdbc.user}"  />
+        <attribute  name="password" default="${jdbc.password}"  />
+        <sequential>
+        	
+        	<local name="delimitertype" />
+        	<local name="strictDelimiterMatching" />
+        	<condition property="delimitertype" value="normal" else="row" >
+				<equals arg1="@{delimiter}" arg2=";"/>
+        	</condition>
+        	<condition property="strictDelimiterMatching" value="true" else="false" >
+				<equals arg1="@{delimiter}" arg2=";"/>
+        	</condition>
+        	
+        	<sql 
+        		src="@{sqlfile}"
+        		userid="@{user}" 
+        		url="${jdbc.url}" 
+        		password="@{password}" 
+        		driver="${jdbc.driver}" 
+        		delimiter="@{delimiter}"
+        		delimitertype="${delimitertype}"
+        		strictDelimiterMatching="${strictDelimiterMatching}"
+        		autocommit="true"
+        		encoding="UTF-8"
+        		onerror="continue"
+    			classpathref="classpath.jdbc.driver"
+        	/>
+            
+        </sequential>
+    </macrodef>
+
+</project>

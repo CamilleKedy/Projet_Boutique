@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ====================================================================== 
+     09/2021
+
+     servers-menu
+                   
+     Emmanuel Amblard                                                                
+     ====================================================================== -->
+
+<project name="servers-menu" >
+
+	
+    <!-- - - - - - - - - - - - - - - - - - 
+          Propriété globales au projet              
+         - - - - - - - - - - - - - - - - - -->
+
+	<!-- Fichier build principal -->
+	<property name="build.main" location="build-servers.xml"/>
+
+	
+
+	<!-- ================================= 
+          cibles avec noms courts              
+         ================================= -->
+
+    <target name="1" description="PostgreSQL - Init database" >
+    	<ant target="postgresql-init-db" antfile="${build.main}" inheritall="false" />
+	</target>
+
+	<target name="2" description="PostgreSQL - Start" >
+    	<ant target="postgresql-start"  antfile="${build.main}" inheritall="false" />
+	</target>
+
+	<target name="3" description="PostgreSQL - Stop" >
+    	<ant target="postgresql-stop"  antfile="${build.main}" inheritall="false" />
+	</target>
+
+    <target name="4" description="WildFly - Init working directory" >
+    	<ant target="wildfly-init-wd" antfile="${build.main}" inheritall="false" />
+	</target>
+
+    <target name="5" description="WildFly - Start" >
+    	<ant target="wildfly-start" antfile="${build.main}" inheritall="false" />
+	</target>
+
+    <target name="6" description="WildFly - Stop" >
+    	<ant target="wildfly-stop" antfile="${build.main}" inheritall="false" />
+	</target>
+
+	<target name="0" >
+	</target>
+
+ 	
+	
+    <!-- ================================= 
+          target: menu
+         ================================= -->
+    <target name="menu" >
+    	
+	    <java classname="org.apache.tools.ant.Main">
+	        <arg value="-projecthelp" />
+	        <arg value="-buildfile" />
+	        <arg value="${ant.file}" />
+	    </java>
+    	
+    	<input addproperty="target" > 0  Quitter${line.separator}    		
+Indiquez le n° de l'opération à exécuter :</input>
+    	<antcall target="${target}"></antcall>
+	</target>
+	
+	
+</project>
